@@ -23,7 +23,11 @@ Safety rails: archived, pinned, running and subagent-owned sessions are skipped;
 Requires DSH `>= 0.2.0`, Node `>= 20`.
 
 ```sh
-dsh plugin --profile <profile> add link:/absolute/path/dsh-session-tidy
+# from GitHub source (build approval required)
+dsh plugin --profile <profile> add github:349840432m-dev/dsh-session-tidy
+
+# or the prebuilt tarball (no build step)
+dsh plugin --profile <profile> add https://github.com/349840432m-dev/dsh-session-tidy/releases/latest/download/dsh-session-tidy.tgz
 ```
 
 Then restart DSH Desktop (the Host half loads at boot). The Web half alone can be refreshed.

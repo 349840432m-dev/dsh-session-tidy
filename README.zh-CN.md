@@ -29,10 +29,14 @@
 要求：DeepSeek Harness `>= 0.2.0`（桌面版 0.2.2 核对）、Node `>= 20`。
 
 ```sh
-# 本地目录（本仓已在 desktop profile 装好这一条）
-dsh plugin --profile <profile> add link:/绝对路径/dsh-session-tidy
+# 从 GitHub 源码安装（需要 allowBuilds 构建授权）
+dsh plugin --profile <profile> add github:349840432m-dev/dsh-session-tidy
 
-# 或直接改 profile：package.json 的 dependencies 加 link，bundles 加 dsh-session-tidy
+# 或用预构建 tarball（免构建）
+dsh plugin --profile <profile> add https://github.com/349840432m-dev/dsh-session-tidy/releases/latest/download/dsh-session-tidy.tgz
+
+# 本地目录
+dsh plugin --profile <profile> add link:/绝对路径/dsh-session-tidy
 ```
 
 装好后**重启一次 DSH Desktop**（Host 半边在启动时加载；只改 Web 半边时刷新页面即可）。
