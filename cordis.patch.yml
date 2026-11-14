@@ -1,0 +1,15 @@
+# dsh-session-tidy bundle patch.
+#
+# 安装本包只插入一个插件行（row id 必须全局唯一：DSH 已占用 `session-stats`、
+# `session-dashboard` 等，这里用 `session-tidy`）。
+#
+# Host 半边在 harness 自带 webServer 上注册同源前缀 `/session-tidy-api`：
+#   GET  /plan   读取 ~/.dsh 会话投影缓存 + workspace.json，生成整理建议（只读）
+#   POST /apply  执行勾选的整理动作（改标题 / 归档 / 取消归档）
+#   POST /undo   撤销最近一批整理
+#   GET  /status 插件健康状态
+# Web 半边由 package.json 的 `dsh.client` 声明：输入框上方常驻「整理会话」按钮，
+# 点击后经 frame 级 `shell.overlay` 浮层预览并应用。
+- insert:
+    - id: session-tidy
+      name: dsh-session-tidy

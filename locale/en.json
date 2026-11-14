@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Session Tidy",
+    "description": "One-click cleanup for the sidebar session list: archive blank sessions, rewrite truncated or instruction-prefixed titles into short ones, disambiguate duplicates, and optionally archive stale sessions. Whole batches can be undone. Entry sits above the composer."
+  }
+}

@@ -1,0 +1,5 @@
+data/
+node_modules/
+*.tgz
+.DS_Store
+STATUS.md

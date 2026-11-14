@@ -1,0 +1,68 @@
+{
+  "name": "dsh-session-tidy",
+  "version": "0.2.0",
+  "description": "DeepSeek Harness 插件：一键整理会话列表 —— 归档空白会话、清洗与去重标题、可选归档长期未活动的会话，支持整批撤销。输入框上方常驻入口。",
+  "keywords": [
+    "deepseek",
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "plugin",
+    "session",
+    "tidy",
+    "organize",
+    "会话",
+    "整理"
+  ],
+  "license": "MIT",
+  "author": "dsh-session-tidy contributors",
+  "type": "module",
+  "main": "lib/index.js",
+  "icon": "./icon.svg",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "docs",
+    "locale",
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20",
+    "dsh": ">=0.2.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node verify/plan.test.mjs && node verify/routes.test.mjs && node verify/client.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/349840432m-dev/dsh-session-tidy.git"
+  },
+  "homepage": "https://github.com/349840432m-dev/dsh-session-tidy#readme",
+  "bugs": {
+    "url": "https://github.com/349840432m-dev/dsh-session-tidy/issues"
+  }
+}
