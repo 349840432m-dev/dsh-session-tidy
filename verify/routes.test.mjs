@@ -26,13 +26,22 @@ const engine = {
   history: async () => ({ batches: [{ id: 'b1', count: 2 }], lastUndoable: true }),
 };
 
+// 模拟 DSH 的 connection.requestRejection：undefined = 放行，403 = 拒绝
+let trustResult;
+const trust = () => trustResult;
+
 const server = http.createServer((req, res) => {
   if (!req.url.startsWith(TIDY_ROUTE_BASE)) {
     res.writeHead(404).end();
     return;
   }
-  createTidyRouter(engine)(req, res);
+  createTidyRouter(engine, { trust })(req, res);
 });
+
+const WRITE_HEADERS = {
+  'content-type': 'application/json',
+  'x-dsh-session-tidy': '1',
+};
 
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
@@ -66,35 +75,59 @@ try {
   assert.equal(history.status, 200);
   assert.equal(history.data.lastUndoable, true);
 
+  // DSH 准入拒绝时，读接口也必须 403
+  trustResult = 403;
+  const denied = await call('/plan');
+  assert.equal(denied.status, 403);
+  assert.equal(denied.data.ok, false);
+  trustResult = undefined;
+
   const applied = await call('/apply', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: WRITE_HEADERS,
     body: JSON.stringify({ batchId: 'batch-1', actions: [{ kind: 'archive', sessionId: 'session-a' }] }),
   });
   assert.equal(applied.status, 200);
   assert.equal(applied.data.applied, 1);
   assert.equal(applied.data.batchId, 'batch-1');
 
-  const empty = await call('/apply', {
+  // 写操作缺少自定义头 → 403（跨源请求无法绕过 CORS 预检）
+  const noHeader = await call('/apply', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ actions: [] }),
+  });
+  assert.equal(noHeader.status, 403);
+  assert.equal(noHeader.data.ok, false);
+
+  // 非 JSON content-type → 415
+  const wrongType = await call('/apply', {
+    method: 'POST',
+    headers: { 'content-type': 'text/plain', 'x-dsh-session-tidy': '1' },
+    body: '{}',
+  });
+  assert.equal(wrongType.status, 415);
+
+  const empty = await call('/apply', {
+    method: 'POST',
+    headers: WRITE_HEADERS,
     body: JSON.stringify({ actions: [] }),
   });
   assert.equal(empty.status, 400);
   assert.equal(empty.data.ok, false);
 
-  const undo = await call('/undo', { method: 'POST', body: '{}' });
+  const undo = await call('/undo', { method: 'POST', headers: WRITE_HEADERS, body: '{}' });
   assert.equal(undo.status, 200);
   assert.equal(undo.data.restored, 2);
 
-  const badJson = await call('/apply', { method: 'POST', body: '{oops' });
+  const badJson = await call('/apply', { method: 'POST', headers: WRITE_HEADERS, body: '{oops' });
   assert.equal(badJson.status, 400);
   assert.match(badJson.data.error, /JSON/);
 
   const unknown = await call('/nope');
   assert.equal(unknown.status, 404);
 
-  const wrongMethod = await call('/plan', { method: 'POST', body: '{}' });
+  const wrongMethod = await call('/plan', { method: 'POST', headers: WRITE_HEADERS, body: '{}' });
   assert.equal(wrongMethod.status, 404, '方法不匹配时按未知路径处理');
 
   console.log('routes.test.mjs: ok');

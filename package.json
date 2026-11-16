@@ -1,6 +1,6 @@
 {
   "name": "dsh-session-tidy",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "DeepSeek Harness 插件：一键整理会话列表 —— 归档空白会话、清洗与去重标题、可选归档长期未活动的会话，支持整批撤销。输入框上方常驻入口。",
   "keywords": [
     "deepseek",

@@ -23,11 +23,7 @@ Safety rails: archived, pinned, running and subagent-owned sessions are skipped;
 Requires DSH `>= 0.2.0`, Node `>= 20`.
 
 ```sh
-# from GitHub source (build approval required)
-dsh plugin --profile <profile> add github:349840432m-dev/dsh-session-tidy
-
-# or the prebuilt tarball (no build step)
-dsh plugin --profile <profile> add https://github.com/349840432m-dev/dsh-session-tidy/releases/latest/download/dsh-session-tidy.tgz
+dsh plugin --profile <profile> add link:/absolute/path/dsh-session-tidy
 ```
 
 Then restart DSH Desktop (the Host half loads at boot). The Web half alone can be refreshed.
@@ -46,6 +42,12 @@ Reads `~/.dsh/storages/session_projcache/sessions/*.json` (titles, first prompts
 | `/session-tidy-api/undo` | GET/POST | undo ledger / undo last batch |
 
 Mutations go through `sessionController.rename()` and `workspaceRegistry.archiveSession()`.
+
+Access control: prefix routes bypass DSH's Connection admission, so every request goes through
+`ctx.connection.requestRejection(req)` (Host/Origin checks plus the browser credential) and is
+rejected with 401/403 when that fails; writes additionally require
+`content-type: application/json` and an `x-dsh-session-tidy: 1` header, which a cross-origin page
+cannot forge without a CORS preflight.
 
 ## Development
 
